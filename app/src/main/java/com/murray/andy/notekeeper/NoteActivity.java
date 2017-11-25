@@ -1,5 +1,6 @@
 package com.murray.andy.notekeeper;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -9,11 +10,16 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.Spinner;
 
 import java.util.List;
 
 public class NoteActivity extends AppCompatActivity {
+
+    public static final String NOTE_INFO = "com.murray.andy.notekeeper.Note_Info";
+    private NoteInfo mNote;
+    private boolean mIsNewNote = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +35,11 @@ public class NoteActivity extends AppCompatActivity {
         ArrayAdapter<CourseInfo> adapterCourses = new ArrayAdapter<CourseInfo>(this, android.R.layout.simple_spinner_item, courses);
         adapterCourses.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerCourses.setAdapter(adapterCourses);
+
+        readDisplayStateValues();
+        if (!mIsNewNote) {
+            displayNote(spinnerCourses);
+        }
     }
 
     @Override
@@ -51,5 +62,24 @@ public class NoteActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void displayNote(Spinner spinnerCourses) {
+        if (mNote != null) {
+            List<CourseInfo> courses = DataManager.getInstance().getCourses();
+            int selectedCourse = courses.indexOf(mNote.getCourse());
+            spinnerCourses.setSelection(selectedCourse);
+            EditText textNoteTitle = findViewById(R.id.text_note_title);
+            EditText textNoteText = findViewById(R.id.text_note_text);
+
+            textNoteTitle.setText(mNote.getTitle());
+            textNoteText.setText(mNote.getText());
+        }
+    }
+
+    private void readDisplayStateValues() {
+        Intent intent = getIntent();
+        mNote = intent.getParcelableExtra(NoteActivity.NOTE_INFO);
+        mIsNewNote = intent == null;
     }
 }
